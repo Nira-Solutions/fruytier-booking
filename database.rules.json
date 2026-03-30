@@ -1,0 +1,10 @@
+{
+  "rules": {
+    "bookings": {
+      "$slotId": {
+        ".read": true,
+        ".write": "!data.exists()"
+      }
+    }
+  }
+}
