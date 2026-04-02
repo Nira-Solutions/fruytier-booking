@@ -216,10 +216,6 @@
             box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
         }
 
-        .slot-card.partial {
-            border-color: #f57c00;
-        }
-
         .slot-card.full {
             background: #ffebee;
             border-color: #d32f2f;
@@ -238,23 +234,6 @@
             text-decoration: line-through;
         }
 
-        .slot-availability {
-            font-size: 0.75em;
-            margin-top: 4px;
-            color: var(--text-gray);
-        }
-
-        .slot-availability .room-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin: 0 2px;
-        }
-
-        .room-dot.free { background: #2e7d32; }
-        .room-dot.taken { background: #d32f2f; }
-
         .slot-status {
             font-size: 0.8em;
             margin-top: 6px;
@@ -263,10 +242,6 @@
 
         .slot-status.available {
             color: #2e7d32;
-        }
-
-        .slot-status.partial-label {
-            color: #f57c00;
         }
 
         .slot-status.taken {
@@ -583,15 +558,10 @@
                         </div>
                         <div class="form-group">
                             <label>Nombre de personnes <span class="required">*</span></label>
-                            <input type="number" id="nb-personnes" required min="1" max="20" value="1" placeholder="1">
-                        </div>
-                        <div class="form-group">
-                            <label>Commercial attit&eacute; <span class="required">*</span></label>
-                            <select id="commercial" required>
-                                <option value="">-- Choisir --</option>
-                                <option value="Florine">Florine</option>
-                                <option value="David">David</option>
-                                <option value="Pierre">Pierre</option>
+                            <select id="nb-personnes" required>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
                             </select>
                         </div>
                         <div class="form-group full-width">
@@ -622,7 +592,7 @@
 
     <!-- FOOTER -->
     <footer class="footer">
-        <p>Pour toute question suppl&eacute;mentaire, contactez-nous &agrave; <a href="mailto:marketing@fruytier.com">marketing@fruytier.com</a></p>
+        <p>Pour toute question, contactez-nous &agrave; <a href="mailto:marketing@fruytier.com">marketing@fruytier.com</a></p>
         <p style="margin-top: 10px;">&copy; 2026 Fruytier Group &mdash; <a href="http://www.fruytier.com" target="_blank">www.fruytier.com</a></p>
         <p style="margin-top: 5px;">Carrefour International du Bois &mdash; Nantes, 2&ndash;4 juin 2026</p>
     </footer>
@@ -658,7 +628,7 @@
         // ============================================
         // DONNEES DES CRENEAUX
         // 45 min par créneau + 15 min de pause
-        // 2 salles par créneau (A et B)
+        // 1 seul RDV par créneau
         // ============================================
         const SLOTS = {
             tuesday: {
@@ -670,7 +640,8 @@
                     { id: "mar-4", time: "12:00 - 12:45" },
                     { id: "mar-5", time: "13:00 - 13:45" },
                     { id: "mar-6", time: "14:00 - 14:45" },
-                    { id: "mar-7", time: "15:00 - 15:45" }
+                    { id: "mar-7", time: "15:00 - 15:45" },
+                    { id: "mar-8", time: "16:00 - 16:45" }
                 ]
             },
             wednesday: {
@@ -702,11 +673,8 @@
             }
         };
 
-        const ROOMS = ['A', 'B'];
-
         let bookedSlots = {};
         let selectedSlot = null;
-        let selectedRoom = null;
         let selectedDay = null;
 
         // ============================================
@@ -725,51 +693,40 @@
         });
 
         // ============================================
-        // RENDU DES CRENEAUX (2 salles par créneau)
+        // RENDU DES CRENEAUX (1 RDV par créneau)
         // ============================================
         function renderAllSlots() {
             Object.keys(SLOTS).forEach(day => {
                 const grid = document.getElementById(`grid-${day}`);
                 grid.innerHTML = '';
                 SLOTS[day].slots.forEach(slot => {
-                    const roomABooked = bookedSlots[`${slot.id}-A`] === true;
-                    const roomBBooked = bookedSlots[`${slot.id}-B`] === true;
-                    const bothBooked = roomABooked && roomBBooked;
-                    const oneBooked = roomABooked || roomBBooked;
+                    const isBooked = bookedSlots[slot.id] === true;
                     const isSelected = selectedSlot === slot.id;
 
                     const card = document.createElement('div');
                     let cssClass = 'slot-card';
-                    if (bothBooked) cssClass += ' full';
+                    if (isBooked) cssClass += ' full';
                     else if (isSelected) cssClass += ' selected';
-                    else if (oneBooked) cssClass += ' partial';
                     card.className = cssClass;
 
                     let statusText, statusClass;
-                    if (bothBooked) {
-                        statusText = 'Complet';
+                    if (isBooked) {
+                        statusText = 'Réservé';
                         statusClass = 'taken';
                     } else if (isSelected) {
-                        statusText = 'S\u00e9lectionn\u00e9';
+                        statusText = 'Sélectionné';
                         statusClass = 'selected-label';
-                    } else if (oneBooked) {
-                        statusText = '1 salle disponible';
-                        statusClass = 'partial-label';
                     } else {
-                        statusText = '2 salles disponibles';
+                        statusText = 'Disponible';
                         statusClass = 'available';
                     }
 
                     card.innerHTML = `
                         <div class="slot-time">${slot.time}</div>
-                        <div class="slot-availability">
-                            <span class="room-dot ${roomABooked ? 'taken' : 'free'}" title="Salle 1"></span>
-                            <span class="room-dot ${roomBBooked ? 'taken' : 'free'}" title="Salle 2"></span>
-                        </div>
                         <div class="slot-status ${statusClass}">${statusText}</div>
                     `;
-                    if (!bothBooked) {
-                        card.onclick = () => selectSlot(slot.id, slot.time, day, roomABooked, roomBBooked);
+                    if (!isBooked) {
+                        card.onclick = () => selectSlot(slot.id, slot.time, day);
                     }
                     grid.appendChild(card);
                 });
@@ -779,21 +736,14 @@
         // ============================================
         // SELECTION D'UN CRENEAU
         // ============================================
-        window.selectSlot = function(slotId, time, day, roomABooked, roomBBooked) {
+        window.selectSlot = function(slotId, time, day) {
             selectedSlot = slotId;
             selectedDay = day;
-            // Assigner automatiquement la salle disponible
-            if (roomABooked) {
-                selectedRoom = 'B';
-            } else {
-                selectedRoom = 'A';
-            }
             renderAllSlots();
 
             const formSection = document.getElementById('form-section');
             const summary = document.getElementById('selected-summary');
-            const roomLabel = selectedRoom === 'A' ? 'Salle 1' : 'Salle 2';
-            summary.textContent = `${SLOTS[day].label} \u2014 ${time} \u2014 ${roomLabel}`;
+            summary.textContent = `${SLOTS[day].label} \u2014 ${time}`;
             formSection.classList.add('visible');
             formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         };
@@ -804,7 +754,7 @@
         window.submitBooking = async function(e) {
             e.preventDefault();
 
-            if (!selectedSlot || !selectedDay || !selectedRoom) {
+            if (!selectedSlot || !selectedDay) {
                 alert('Veuillez s\u00e9lectionner un cr\u00e9neau.');
                 return;
             }
@@ -816,11 +766,17 @@
             const email = document.getElementById('email').value.trim();
             const telephone = document.getElementById('telephone').value.trim();
             const nbPersonnes = document.getElementById('nb-personnes').value;
-            const commercial = document.getElementById('commercial').value;
             const demande = document.getElementById('demande').value;
 
-            if (!nom || !prenom || !societe || !email || !nbPersonnes || !commercial) {
+            if (!nom || !prenom || !societe || !email || !nbPersonnes) {
                 alert('Veuillez remplir tous les champs obligatoires.');
+                return;
+            }
+
+            // Validation nombre de personnes (max 3)
+            const nbPers = parseInt(nbPersonnes);
+            if (nbPers < 1 || nbPers > 3) {
+                alert('Le nombre de personnes doit être entre 1 et 3.');
                 return;
             }
 
@@ -829,19 +785,16 @@
             submitBtn.disabled = true;
             loading.classList.add('visible');
 
-            const fullSlotId = `${selectedSlot}-${selectedRoom}`;
-
             try {
-                // Verifier que le slot+salle est encore dispo
-                const slotRef = ref(db, `bookings/${fullSlotId}`);
+                // Verifier que le créneau est encore disponible
+                const slotRef = ref(db, `bookings/${selectedSlot}`);
                 const snapshot = await get(slotRef);
 
                 if (snapshot.exists()) {
-                    alert('D\u00e9sol\u00e9, cette salle vient d\u2019\u00eatre r\u00e9serv\u00e9e. Veuillez choisir un autre cr\u00e9neau.');
+                    alert('Désolé, ce créneau vient d\u2019être réservé. Veuillez en choisir un autre.');
                     loading.classList.remove('visible');
                     submitBtn.disabled = false;
                     selectedSlot = null;
-                    selectedRoom = null;
                     selectedDay = null;
                     document.getElementById('form-section').classList.remove('visible');
                     renderAllSlots();
@@ -849,19 +802,16 @@
                 }
 
                 const slot = SLOTS[selectedDay].slots.find(s => s.id === selectedSlot);
-                const roomLabel = selectedRoom === 'A' ? 'Salle 1' : 'Salle 2';
                 const bookingData = {
-                    slotId: fullSlotId,
+                    slotId: selectedSlot,
                     day: SLOTS[selectedDay].label,
                     time: slot.time,
-                    room: roomLabel,
                     nom,
                     prenom,
                     societe,
                     email,
                     telephone,
-                    nbPersonnes: parseInt(nbPersonnes),
-                    commercial,
+                    nbPersonnes: nbPers,
                     demande,
                     createdAt: new Date().toISOString()
                 };
@@ -877,12 +827,10 @@
                 details.innerHTML = `
                     <p><strong>Date :</strong> ${bookingData.day}</p>
                     <p><strong>Horaire :</strong> ${bookingData.time}</p>
-                    <p><strong>Salle :</strong> ${roomLabel}</p>
                     <p><strong>Nom :</strong> ${prenom} ${nom}</p>
                     <p><strong>Soci\u00e9t\u00e9 :</strong> ${societe}</p>
                     <p><strong>Email :</strong> ${email}</p>
                     <p><strong>Personnes :</strong> ${nbPersonnes}</p>
-                    <p><strong>Commercial :</strong> ${commercial}</p>
                     ${demande ? `<p><strong>Commentaire :</strong> ${demande}</p>` : ''}
                 `;
                 confirmation.classList.add('visible');
@@ -900,7 +848,6 @@
         // ============================================
         window.resetBooking = function() {
             selectedSlot = null;
-            selectedRoom = null;
             selectedDay = null;
             document.getElementById('booking-form').reset();
             document.getElementById('form-section').classList.remove('visible');

@@ -66,8 +66,12 @@ exports.onNewBooking = functions
                                 <td style="padding: 8px 0;">${booking.telephone || "Non renseigné"}</td>
                             </tr>
                             <tr>
+                                <td style="padding: 8px 0; font-weight: bold; color: #a01518;">Personnes</td>
+                                <td style="padding: 8px 0;">${booking.nbPersonnes || 1}</td>
+                            </tr>
+                            <tr>
                                 <td style="padding: 8px 0; font-weight: bold; color: #a01518;">Demande</td>
-                                <td style="padding: 8px 0;">${booking.demande}</td>
+                                <td style="padding: 8px 0;">${booking.demande || "Aucune"}</td>
                             </tr>
                         </table>
                     </div>
