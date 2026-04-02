@@ -403,23 +403,6 @@
             color: var(--primary-dark);
         }
 
-        .new-booking-btn {
-            display: inline-block;
-            padding: 12px 30px;
-            background: var(--white);
-            color: var(--primary);
-            border: 2px solid var(--primary);
-            border-radius: 10px;
-            font-family: inherit;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: all 0.3s;
-        }
-
-        .new-booking-btn:hover {
-            background: var(--primary-light);
-        }
 
         /* FOOTER */
         .footer {
@@ -579,14 +562,14 @@
         <!-- CONFIRMATION -->
         <div class="confirmation" id="confirmation">
             <div class="confirmation-icon">&#10003;</div>
-            <h2>Rendez-vous confirm&eacute; !</h2>
+            <h2>Rendez-vous demand&eacute; !</h2>
+            <p style="color: var(--text-gray); margin-bottom: 5px;">
+                Un email de confirmation vous sera envoy&eacute; par notre &eacute;quipe.
+            </p>
             <div class="confirmation-details" id="confirmation-details"></div>
             <p style="font-size:0.85em; margin-top: 15px;">
                 Retrouvez-nous au stand <strong>XXL-D13</strong>
             </p>
-            <button class="new-booking-btn" onclick="resetBooking()">
-                R&eacute;server un autre cr&eacute;neau
-            </button>
         </div>
     </main>
 
@@ -841,22 +824,6 @@
                 loading.classList.remove('visible');
                 submitBtn.disabled = false;
             }
-        };
-
-        // ============================================
-        // RESET
-        // ============================================
-        window.resetBooking = function() {
-            selectedSlot = null;
-            selectedDay = null;
-            document.getElementById('booking-form').reset();
-            document.getElementById('form-section').classList.remove('visible');
-            document.getElementById('confirmation').classList.remove('visible');
-            document.getElementById('booking-section').style.display = 'block';
-            document.getElementById('submit-btn').disabled = false;
-            switchDay('tuesday');
-            renderAllSlots();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         // ============================================
